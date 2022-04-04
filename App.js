@@ -95,7 +95,7 @@ export default function App() {
 	return (
 		<NavigationContainer>
 		<Tab.Navigator
-			initialRouteName="students"
+			initialRouteName="timetable"
 			screenOptions={({route}) => ({
 				tabBarStyle: { 
 					borderTopLeftRadius: 30,
