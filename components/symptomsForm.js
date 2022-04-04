@@ -48,7 +48,7 @@ export default class StudentPage extends Component  {
     constructor(props) {
         super(props);
         this.state = {
-            checkedSymptoms: props.currentSymptoms,
+            checkedSymptoms: this.props.currentSymptoms,
             symptoms: [],
             subSymptoms: [],
             listData: []
@@ -85,7 +85,10 @@ export default class StudentPage extends Component  {
 
     shouldComponentUpdate(nextProps, nextState){
         const currentState = this.state
-        this.state.checkedSymptoms != nextProps.currentSymptoms?this.setState({checkedSymptoms:nextProps.currentSymptoms}):null
+        if (JSON.stringify(this.state.checkedSymptoms) != JSON.stringify(nextProps.currentSymptoms)){
+            this.setState({checkedSymptoms:nextProps.currentSymptoms})
+            return true
+        }
         if(currentState.symptoms.length == 0 || 
             currentState.subSymptoms.length == 0 || 
             currentState.listData != nextState.listData || 

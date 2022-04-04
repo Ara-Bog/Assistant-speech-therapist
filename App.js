@@ -15,7 +15,7 @@ import Timetable from './pages/timetable'
 import TimetableForm from './pages/timetableForm'
 import StudentPage from './pages/studentPage';
 import ListStudents from './pages/listStudents';
-import GroupPage from './pages/groupsPage';
+import GroupPage from './pages/groupPage';
 import ListGroups from './pages/listGroups';
 
 async function openDatabaseIShipWithApp() {
@@ -95,7 +95,7 @@ export default function App() {
 	return (
 		<NavigationContainer>
 		<Tab.Navigator
-			initialRouteName="timetable"
+			initialRouteName="students"
 			screenOptions={({route}) => ({
 				tabBarStyle: { 
 					borderTopLeftRadius: 30,

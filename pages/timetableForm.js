@@ -47,16 +47,14 @@ export default class TimetableForm extends Component {
     }
 
     checkValues(){
-        for (let item in this.state.dataForm) {
-            if (this.state.dataForm[item] == '' && item != 'ID') {
-                Alert.alert(
-                    "Ошибка ввода данных",
-                    "Необходимо заполнить все поля",
-                    [{ text: "OK"}],
-                    {cancelable: true}
-                );
-                return;
-            }
+        if (Object.keys(this.state.dataForm).length < 4){
+            Alert.alert(
+                "Ошибка ввода данных",
+                "Необходимо заполнить все поля",
+                [{ text: "OK"}],
+                {cancelable: true}
+            );
+            return
         }
         {this.state.dataForm.ID != undefined ? this.updateNote():this.updateBase()}
     };
@@ -179,7 +177,7 @@ export default class TimetableForm extends Component {
                 </View>
                 <View style={Styles.rowForm}>
                     <TouchableOpacity style={Styles.submitBtn} onPress={() => this.checkValues()}>
-                        <Text style={Styles.submitBtnText}>{this.state.dataForm.ID != undefined ? 'Создать': 'Сохранить'}</Text>
+                        <Text style={Styles.submitBtnText}>{this.state.dataForm.ID != undefined ? 'Сохранить': 'Создать'}</Text>
                     </TouchableOpacity>
                 </View>
                 {this.state.timePickerOpen ?

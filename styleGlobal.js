@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions  } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
     container: {
@@ -12,8 +12,7 @@ export default StyleSheet.create({
 
     containerCard: {
         display: 'flex',
-        flexDirection: 'column',
-        maxHeight: Dimensions.get('window').height - 300
+        flexDirection: 'column'
     },
 
     cardDays: {
@@ -73,6 +72,13 @@ export default StyleSheet.create({
         flexDirection:'row', 
         marginBottom: 5, 
         alignItems:'center', 
+    },
+
+    rowSwitchText: {
+        fontSize: 14, 
+        fontFamily:'sf_medium', 
+        marginTop: -4, 
+        marginLeft: 15
     },
 
     float_btAdd_wrap: {
@@ -167,10 +173,13 @@ export default StyleSheet.create({
     },
 
     cardDaysGoTo: {
+        backgroundColor: '#554AF01A',
         borderRadius: 10,
-        paddingVertical: 11,
+        paddingVertical: 12,
+        flexDirection: 'row',
         alignItems:'center',
-        backgroundColor:'#554AF01A',
+        flex: 1,
+        justifyContent:'center',
         width: '100%'
     },
 
@@ -181,10 +190,20 @@ export default StyleSheet.create({
         color:'#554AF0'
     },
 
+    cardStudentBtn_delete: {
+        backgroundColor: '#fcefef',
+        borderRadius: 10,
+        paddingVertical: 14,
+        flexDirection: 'row',
+        alignItems:'center',
+        justifyContent:'center',
+        marginBottom: 15
+    },
+
     cardDaysRemove: {
         backgroundColor: '#fcefef',
         borderRadius: 10,
-        paddingVertical: 11,
+        paddingVertical: 12,
         flexDirection: 'row',
         alignItems:'center',
         flex: 1,
@@ -237,7 +256,7 @@ export default StyleSheet.create({
     },
 
     crutch: {
-        padding: 30
+        padding: 75
     },
 
     submitBtn: {
@@ -472,13 +491,12 @@ export default StyleSheet.create({
         textTransform: 'uppercase'
     },
 
-    cardStudentNote_view: {
+    cardStudentNoteText: {
         fontSize: 14,
         fontFamily: 'sf_regular',
         lineHeight: 20,
         fontWeight: '400',
-        color: '#04021D',
-        textAlignVertical: 'top',
+        color: '#04021D'
     },
 
     cardStudentNote_edit: {
@@ -493,5 +511,34 @@ export default StyleSheet.create({
         lineHeight: 20,
         fontWeight: '400',
         color: '#04021D',
+    },
+
+    cardGroupBox: {
+        marginBottom: 15
+    },
+
+    cardGroupBoxRow: {
+        flexDirection: 'row',
+        marginBottom: 15,
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+
+    cardGroupBoxRowText: {
+        fontFamily: 'sf_light',
+        fontStyle: 'normal',
+        fontWeight: '300',
+        fontSize: 14,
+        lineHeight: 17,
+        color: '#04021D'
+    },
+
+    cardGroupBoxRowBtn: {
+        borderRadius: 10,
+        backgroundColor: 'green',
+        width: 38,
+        height: 28,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 });

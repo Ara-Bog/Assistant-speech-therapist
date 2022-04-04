@@ -14,7 +14,7 @@ export default class AddingButton extends Component  {
             "Подтвердите действие",
             `Вы действительно хотите вернуться к просмотру не сохранив изменения ?`,
             [{ text: "Да",
-            onPress: () => (this.props.confirm(false), this.changeStateParent()),
+            onPress: () => (this.changeStateParent(), this.props.confirm(false)),
             style: "destructive",}, 
             { text: "Отмена",
             style: "cancel",}],

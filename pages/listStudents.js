@@ -16,7 +16,7 @@ export default class ListStudentsWrap extends Component  {
 
     getData() {
         db.transaction((tx) => {
-            tx.executeSql("SELECT st.ID as ID, st.Group_name as 'Group', dg.Name as Diagnos, st.Name || ' ' || st.Surname || ' ' || COALESCE(st.Midname, '') as Name FROM Students as st INNER JOIN Diagnosis as dg ON st.diagnos_id = dg.id", [], 
+            tx.executeSql("SELECT st.ID as ID, st.Group_name as 'Group', dg.Name as Diagnos, st.Surname || ' ' || st.Name || ' ' || COALESCE(st.Midname, '') as Name FROM Students as st INNER JOIN Diagnosis as dg ON st.diagnos_id = dg.id", [], 
                 (_, {rows:{_array}}) => this.setState({dataStudents : _array}), 
                 (_, err) => console.log('error getData - ', err)
             )

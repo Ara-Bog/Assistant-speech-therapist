@@ -6,6 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import SymptomsForm from '../components/symptomsForm'
 import TableSounds from '../components/tableSounds'
+import { Feather } from '@expo/vector-icons';
 
 DropDownPicker.setLanguage("RU");
 
@@ -28,7 +29,8 @@ export default class StudentPage extends Component  {
             dropDownsOpen: {subgroup: false, categori: false, diagnos: false},
             checkedViolations: [],
             currentSymptoms: false,
-            currentSounds: false
+            currentSounds: false,
+            closePage: false
         }
         if (this.state.options.type == 'view') {
             db.transaction((tx) => {
@@ -94,11 +96,22 @@ export default class StudentPage extends Component  {
                 return
             }
         }
-        {this.state.options.type == 'add'?
-        (this.setState({options:{...this.state.options, type:'view'}}), 
-        this.addBase(), 
-        this.props.navigation.setOptions({headerTitle : "Карточка ученика"})):
-        this.updateBase()}
+        {this.state.options.type == 'add'
+        ?
+            (this.addBase(), 
+            db.transaction((tx) => {
+            tx.executeSql(
+                "SELECT max(id) as lastID FROM Students", 
+                [], 
+                (_, {rows:{_array}}) => this.setState({currentDataClient:{...this.state.currentDataClient, ID:_array[0]['lastID']}}), 
+                (_, err) => (Alert.alert('Произошла какая-то ошибка'), console.log('error getID - ', err)))
+            }),
+            this.setState({options:{...this.state.options, type:'view'}}),
+            this.props.navigation.setOptions({headerTitle : "Карточка ученика"})
+            )
+            
+        :
+            this.updateBase()}
     }
 
     addBase(){
@@ -196,33 +209,88 @@ export default class StudentPage extends Component  {
         this.props.navigation.goBack()
     }
 
+    removeStudentConfirm(){
+        const student = this.state.currentDataClient
+        Alert.alert(
+            "Подтвердите удаление",
+            `Вы действительно хотите удалить карточку для ${student.Surname} ${student.Name} ${student.Midname || ''} ?\nЭто также удалит связанные с ней записи в расписании.`,
+            [{ text: "Да",
+            onPress: () => this.removeStudent(student.ID),
+            style: "destructive",}, 
+            { text: "Отмена",
+            style: "cancel",}],
+            {cancelable: true}
+        );
+
+    }
+
+    removeStudent(id_client) {
+        db.transaction((tx) => {
+            tx.executeSql(
+            "DELETE FROM timetable WHERE Client_id = ? AND Type = 's'", 
+            [id_client], 
+            () => null, 
+            (_, err) => console.log('error removeStudent (timetable) - ', err));
+            tx.executeSql(
+                "DELETE FROM students WHERE id = ?", 
+                [id_client], 
+                () => Alert.alert('Карточка успешно удаленна'), 
+                (_, err) => (Alert.alert('Произошла какая-то ошибка'), console.log('error removeStudent (students) - ', err)));
+        });
+        this.props.navigation.goBack()
+    }
+
     render() {
         return (
             <View style={{...Styles.container, backgroundColor: '#fff'}}>
                 <ScrollView nestedScrollEnabled={true} contentContainerStyle={{flexGrow:1}}>
+                    {this.state.editing && this.state.options.type == 'view'
+                    ?
+                        <TouchableOpacity style={Styles.cardStudentBtn_delete} onPress={() => this.removeStudentConfirm()}>
+                            <Feather name="trash" size={16} color="#DC5F5A" style={{marginRight: 8}}/>
+                            <Text style={Styles.cardDaysRemoveText}>Удалить</Text>
+                        </TouchableOpacity>
+                    :
+                        null
+                    }
                     <View style={this.state.editing? Styles.cardStudentRow_edit: Styles.cardStudentRow}>
                         <Text style={Styles.cardStudentLabel}>Фамилия{this.state.editing? ' *': null}</Text>
+                        {this.state.editing
+                        ?
                         <TextInput 
-                        style={this.state.editing? Styles.inputDefault: Styles.inputDefault_disabled}
+                        style={Styles.inputDefault}
                         value = {this.state.currentDataClient.Surname}
                         onChangeText = {(val) => this.setState({currentDataClient: {...this.state.currentDataClient, Surname: val}})}
-                        editable={this.state.editing}/>
+                        />
+                        :
+                        <Text style={Styles.inputDefault_disabled}>{this.state.currentDataClient.Surname}</Text>
+                        }
                     </View>
                     <View style={this.state.editing? Styles.cardStudentRow_edit: Styles.cardStudentRow}>
                         <Text style={Styles.cardStudentLabel}>Имя{this.state.editing?' *': null}</Text>
+                        {this.state.editing
+                        ?
                         <TextInput 
-                        style={this.state.editing? Styles.inputDefault: Styles.inputDefault_disabled}
-                        value= {this.state.currentDataClient.Name}
+                        style={Styles.inputDefault}
+                        value = {this.state.currentDataClient.Name}
                         onChangeText = {(val) => this.setState({currentDataClient: {...this.state.currentDataClient, Name: val}})}
-                        editable={this.state.editing}/>
+                        />
+                        :
+                        <Text style={Styles.inputDefault_disabled}>{this.state.currentDataClient.Name}</Text>
+                        }
                     </View>
                     <View style={this.state.editing? Styles.cardStudentRow_edit: Styles.cardStudentRow}>
                         <Text style={Styles.cardStudentLabel}>Отчество</Text>
+                        {this.state.editing
+                        ?
                         <TextInput 
-                        style={this.state.editing? Styles.inputDefault: Styles.inputDefault_disabled}
-                        value= {this.state.currentDataClient.Midname || 'Не указано'}
+                        style={Styles.inputDefault}
+                        value = {this.state.currentDataClient.Midname}
                         onChangeText = {(val) => this.setState({currentDataClient: {...this.state.currentDataClient, Midname: val}})}
-                        editable={this.state.editing}/>
+                        />
+                        :
+                        <Text style={Styles.inputDefault_disabled}>{this.state.currentDataClient.Midname || 'Не указано'}</Text>
+                        }
                     </View>
                     <View style={this.state.editing? Styles.cardStudentRow_edit: Styles.cardStudentRow}>
                         <Text style={Styles.cardStudentLabel}>{this.state.editing ?'Дата рождения *':'Возраст'}</Text>
@@ -237,12 +305,17 @@ export default class StudentPage extends Component  {
                         }
                     </View>
                     <View style={this.state.editing? Styles.cardStudentRow_edit: Styles.cardStudentRow}>
-                        <Text style={Styles.cardStudentLabel}>Группа{this.state.editing?' *': null}</Text>
+                        <Text style={Styles.cardStudentLabel}>Группа в организации{this.state.editing?' *': null}</Text>
+                        {this.state.editing
+                        ?
                         <TextInput 
-                        style={this.state.editing? Styles.inputDefault: Styles.inputDefault_disabled}
-                        value= {this.state.currentDataClient.Group_name}
+                        style={Styles.inputDefault}
+                        value = {this.state.currentDataClient.Group_name}
                         onChangeText = {(val) => this.setState({currentDataClient: {...this.state.currentDataClient, Group_name: val}})}
-                        editable={this.state.editing}/>
+                        />
+                        :
+                        <Text style={Styles.inputDefault_disabled}>{this.state.currentDataClient.Group_name}</Text>
+                        }
                     </View>
                     <View style={this.state.editing? Styles.cardStudentRow_edit: Styles.cardStudentRow}>
                         <Text style={Styles.cardStudentLabel}>Возрастная группа{this.state.editing?' *': null}</Text>
@@ -268,7 +341,7 @@ export default class StudentPage extends Component  {
                         }
                     </View>
                     <View style={this.state.editing? Styles.cardStudentRow_edit: Styles.cardStudentRow}>
-                        <Text style={Styles.cardStudentLabel}>Подгруппа</Text>
+                        <Text style={Styles.cardStudentLabel}>Группа</Text>
                         {this.state.editing ? 
                             <DropDownPicker
                             zIndex={11}
@@ -313,33 +386,38 @@ export default class StudentPage extends Component  {
                     </View>
                     <View style={this.state.editing || this.state.checkedViolations.length != 0? Styles.cardStudentRow_edit: {...Styles.cardStudentRow, marginBottom: 25}}>
                         <Text style={Styles.cardStudentLabel}>Заключение логопеда</Text>
-                        {this.state.checkedViolations.length == 0
+                        {this.state.checkedViolations.length == 0 && !this.state.editing
                         ?
-                        <Text style={Styles.cardStudentValue_empty}>Не выбранно</Text>
+                            <Text style={Styles.cardStudentValue_empty}>Не выбранно</Text>
                         :
-                        <View style={Styles.cardStudentBox}>
-                            {this.state.editing ? 
-                                this.state.violations.map((item) => 
-                                    <Text key={item.value} 
-                                    style={this.state.checkedViolations.includes(item.value.toString())?Styles.cardStudentElement_active:Styles.cardStudentElement}
-                                    onPress={() => this.violationSelected(item.value.toString())}>
-                                        {item.label}
-                                    </Text>
-                                ): 
-                                this.state.violations.filter((item) => 
-                                    this.state.checkedViolations.includes(item.value.toString())).map((item) => 
-                                        <Text key={item.value} style={Styles.cardStudentElement}>{item.label}</Text>
-                                )
-                                    
-                            }
-                        </View>}
+                            <View style={Styles.cardStudentBox}>
+                                {this.state.editing 
+                                ? 
+                                    this.state.violations.map((item) => 
+                                        <Text key={item.value} 
+                                        style={this.state.checkedViolations.includes(item.value.toString())?Styles.cardStudentElement_active:Styles.cardStudentElement}
+                                        onPress={() => this.violationSelected(item.value.toString())}>
+                                            {item.label}
+                                        </Text>
+                                    )
+                                : 
+                                    this.state.violations.filter((item) => 
+                                        this.state.checkedViolations.includes(item.value.toString())).map((item) => 
+                                            <Text key={item.value} style={Styles.cardStudentElement}>{item.label}</Text>
+                                    )
+                                }
+                            </View>
+                        }
                     </View>
                     <View style={Styles.cardStudentLine}></View>
+                    {this.state.currentSymptoms
+                    ? 
                     <SymptomsForm 
                     currentSymptoms={this.state.currentSymptoms}
                     mode={this.state.editing}
                     onCallBack={(newSympt) => this.symptomsSelected(newSympt)}
                     />
+                    :null}
                     <View style={Styles.cardStudentLine}></View>
                     {this.state.currentSounds
                     ?<TableSounds 
@@ -351,14 +429,24 @@ export default class StudentPage extends Component  {
                     <View style={Styles.cardStudentLine}></View>
                     <View style={{...Styles.cardStudentRow_edit, marginBottom: 100}}>
                         <Text style={Styles.cardStudentTitle}>Заметки</Text>
-                        <TextInput 
-                        multiline={true}
-                        numberOfLines = {5}
-                        value = {this.state.currentDataClient.Note}
-                        onChangeText = {(val) => this.setState({currentDataClient: {...this.state.currentDataClient, Note: val}})}
-                        style={this.state.editing?Styles.cardStudentNote_edit: Styles.cardStudentNote_view}
-                        editable={this.state.editing}/>
+                        {this.state.editing
+                        ?
+                            <TextInput 
+                            multiline={true}
+                            numberOfLines = {5}
+                            value = {this.state.currentDataClient.Note}
+                            onChangeText = {(val) => this.setState({currentDataClient: {...this.state.currentDataClient, Note: val}})}
+                            style={Styles.cardStudentNote_edit}
+                            editable={this.state.editing}/>
+                        :
+                            this.state.currentDataClient.Note 
+                            ?
+                                <Text style={Styles.cardStudentNoteText}>{this.state.currentDataClient.Note}</Text>
+                            :
+                                <Text style={{...Styles.cardStudentValue_empty, marginBottom: 25, marginLeft: 0}}>Пусто</Text>
+                        }
                     </View>
+                    <View style={Styles.crutch}></View>
                 </ScrollView>
                 {this.state.timePickerOpen 
                 ?<DateTimePicker
