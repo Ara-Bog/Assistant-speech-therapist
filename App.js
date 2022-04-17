@@ -28,7 +28,7 @@ async function openDatabaseIShipWithApp() {
     }
     return SQLite.openDatabase(internalDbName);
 }
-
+	
 global.db = openDatabaseIShipWithApp()
 
 const Tab = createBottomTabNavigator();
@@ -87,7 +87,7 @@ export default function App() {
 	}
 
 	if((!loaded) || db['_W'] == null){
-		return null
+		return false
 	} else {
 		db = db['_W']
 	}
