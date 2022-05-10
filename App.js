@@ -1,5 +1,5 @@
 import React from 'react';
-import { PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
@@ -17,6 +17,7 @@ import StudentPage from './pages/studentPage';
 import ListStudents from './pages/listStudents';
 import GroupPage from './pages/groupPage';
 import ListGroups from './pages/listGroups';
+import LoadingAnimation from './components/LoadingAnimation'
 
 async function openDatabaseIShipWithApp() {
     const internalDbName = "db_app.db";
@@ -35,6 +36,7 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
 	const [loaded] = useFonts({
 		'sf_regular': require('./assets/fonts/sf_regular.ttf'),
 		'sf_bold': require('./assets/fonts/sf_bold.ttf'),
@@ -87,8 +89,10 @@ export default function App() {
 	}
 
 	if((!loaded) || db['_W'] == null){
-		return false
+		console.log("asd")
+		return <LoadingAnimation />
 	} else {
+		console.log("asg")
 		db = db['_W']
 	}
 	

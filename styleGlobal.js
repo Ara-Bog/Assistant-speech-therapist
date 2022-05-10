@@ -540,5 +540,31 @@ export default StyleSheet.create({
         height: 28,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+
+    iconLoadContainer :{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    iconLoadWrap :{
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        paddingHorizontal: 19
+    },
+
+    iconLoadImageBorder: {
+        width:115, 
+        height:120
+    },
+
+    iconLoadImagePerson: {
+        marginRight: 6,
+        width: 46,
+        height: 56,
+        marginTop: 5
     }
 });
