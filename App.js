@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons'; 
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from "expo-file-system";
-import {Asset} from "expo-asset";
+import { Asset } from "expo-asset";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 
@@ -37,7 +37,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
 
-	const [loaded] = useFonts({
+	const [loaded, fontError] = useFonts({
 		'sf_regular': require('./assets/fonts/sf_regular.ttf'),
 		'sf_bold': require('./assets/fonts/sf_bold.ttf'),
 		'sf_heavy': require('./assets/fonts/sf_heavy.ttf'),
@@ -88,74 +88,71 @@ export default function App() {
 		requestStoragePermission()
 	}
 
-	if((!loaded) || db['_W'] == null){
-		console.log("asd")
+	if(!(loaded) || db['_W'] == null){
 		return <LoadingAnimation />
 	} else {
-		console.log("asg")
 		db = db['_W']
+		return (
+			<NavigationContainer>
+				<Tab.Navigator
+					initialRouteName="timetable"
+					screenOptions={({route}) => ({
+						tabBarStyle: { 
+							borderTopLeftRadius: 30,
+							borderTopRightRadius: 30,
+							position: 'absolute',
+							bottom: hideTabPage.includes(getFocusedRouteNameFromRoute(route))?-100:0,
+							borderTopWidth: 0,
+							shadowColor: 'red',
+							elevation: 10,
+							height: 78,
+							paddingBottom: 22,
+							paddingTop: 13,
+						},
+						tabBarLabelStyle: {
+							fontSize: 11,
+							fontFamily: 'sf_medium'
+						},
+						tabBarActiveTintColor: '#554AF0',
+						tabBarInactiveTintColor: '#B1B1B1',
+					})
+					}
+				>
+					<Tab.Screen
+					name="timetable"
+					component={TimetableNav}
+					options={{
+						title:"Расписание",
+						headerShown: false,
+						tabBarIcon: ({ color, size }) => (
+						<Feather name="calendar" size={24} color={color} />
+						),
+					}}
+					/>
+					<Tab.Screen
+					name="groups"
+					component={ListGroupNav}
+					options={{
+						title:"Группы",
+						headerShown: false,
+						tabBarIcon: ({ color, size }) => (
+						<Ionicons name="people-outline" size={27} color={color} />
+						),
+					}}
+					/>
+					<Tab.Screen
+					name="students"
+					component={ListStudentsNav}
+					options={{
+						title:"Ученики",
+						headerShown: false,
+						tabBarIcon: ({ color, size }) => (
+						<MaterialCommunityIcons name="baby-face" size={size} color={color} />
+						),
+					}}
+					/>
+				</Tab.Navigator>
+			</NavigationContainer>
+		);
 	}
-	
-	return (
-		<NavigationContainer>
-		<Tab.Navigator
-			initialRouteName="timetable"
-			screenOptions={({route}) => ({
-				tabBarStyle: { 
-					borderTopLeftRadius: 30,
-					borderTopRightRadius: 30,
-					position: 'absolute',
-					bottom: hideTabPage.includes(getFocusedRouteNameFromRoute(route))?-100:0,
-					borderTopWidth: 0,
-					shadowColor: 'red',
-					elevation: 10,
-					height: 78,
-					paddingBottom: 22,
-					paddingTop: 13,
-				},
-				tabBarLabelStyle: {
-					fontSize: 11,
-					fontFamily: 'sf_medium'
-				},
-				tabBarActiveTintColor: '#554AF0',
-				tabBarInactiveTintColor: '#B1B1B1',
-			})
-			}
-		>
-			<Tab.Screen
-			name="timetable"
-			component={TimetableNav}
-			options={{
-				title:"Расписание",
-				headerShown: false,
-				tabBarIcon: ({ color, size }) => (
-				<Feather name="calendar" size={24} color={color} />
-				),
-			}}
-			/>
-			<Tab.Screen
-			name="groups"
-			component={ListGroupNav}
-			options={{
-				title:"Группы",
-				headerShown: false,
-				tabBarIcon: ({ color, size }) => (
-				<Ionicons name="people-outline" size={27} color={color} />
-				),
-			}}
-			/>
-			<Tab.Screen
-			name="students"
-			component={ListStudentsNav}
-			options={{
-				title:"Ученики",
-				headerShown: false,
-				tabBarIcon: ({ color, size }) => (
-				<MaterialCommunityIcons name="baby-face" size={size} color={color} />
-				),
-			}}
-			/>
-		</Tab.Navigator>
-		</NavigationContainer>
-	);
 }
